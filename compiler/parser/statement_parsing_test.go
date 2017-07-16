@@ -62,7 +62,9 @@ func TestClassStatement(t *testing.T) {
 
 	stmt := program.Statements[0].(*ast.ClassStatement)
 
-	testConstant(t, stmt.Name, "Foo")
+	if stmt.Name() != "Foo" {
+		t.Errorf("Expect stmt's name to be %s. got=%s", "Foo", stmt.Name())
+	}
 
 	defStmt := stmt.Body.Statements[0].(*ast.DefStatement)
 
@@ -99,7 +101,9 @@ func TestModuleStatement(t *testing.T) {
 
 	stmt := program.Statements[0].(*ast.ModuleStatement)
 
-	testConstant(t, stmt.Name, "Foo")
+	if stmt.Name() != "Foo" {
+		t.Errorf("Expect stmt's name to be %s. got=%s", "Foo", stmt.Name())
+	}
 
 	defStmt := stmt.Body.Statements[0].(*ast.DefStatement)
 
@@ -136,7 +140,10 @@ func TestClassStatementWithInheritance(t *testing.T) {
 
 	stmt := program.Statements[0].(*ast.ClassStatement)
 
-	testConstant(t, stmt.Name, "Foo")
+	if stmt.Name() != "Foo" {
+		t.Errorf("Expect stmt's name to be %s. got=%s", "Foo", stmt.Name())
+	}
+
 	testConstant(t, stmt.SuperClass, "Bar")
 
 	defStmt := stmt.Body.Statements[0].(*ast.DefStatement)

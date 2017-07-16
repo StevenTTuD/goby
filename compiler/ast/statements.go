@@ -5,9 +5,13 @@ import (
 	"github.com/goby-lang/goby/compiler/token"
 )
 
+type ScopeNode interface {
+	Name() string
+}
+
 type ClassStatement struct {
 	Token          token.Token
-	Name           *Constant
+	name           *Constant
 	Body           *BlockStatement
 	SuperClass     Expression
 	SuperClassName string
@@ -21,18 +25,24 @@ func (cs *ClassStatement) String() string {
 	var out bytes.Buffer
 
 	out.WriteString("class ")
-	out.WriteString(cs.Name.TokenLiteral())
+	out.WriteString(cs.name.TokenLiteral())
 	out.WriteString(" {\n")
 	out.WriteString(cs.Body.String())
 	out.WriteString("\n}")
 
 	return out.String()
 }
+func (cs *ClassStatement) Name() string {
+	return cs.name.Value
+}
+func (cs *ClassStatement) SetName(n *Constant) {
+	cs.name = n
+}
 
 // ModuleStatement represents module node in AST
 type ModuleStatement struct {
 	Token      token.Token
-	Name       *Constant
+	name       *Constant
 	Body       *BlockStatement
 	SuperClass *Constant
 }
@@ -47,12 +57,18 @@ func (ms *ModuleStatement) String() string {
 	var out bytes.Buffer
 
 	out.WriteString("module ")
-	out.WriteString(ms.Name.TokenLiteral())
+	out.WriteString(ms.name.TokenLiteral())
 	out.WriteString(" {\n")
 	out.WriteString(ms.Body.String())
 	out.WriteString("\n}")
 
 	return out.String()
+}
+func (ms *ModuleStatement) Name() string {
+	return ms.name.Value
+}
+func (ms *ModuleStatement) SetName(n *Constant) {
+	ms.name = n
 }
 
 type ReturnStatement struct {
@@ -111,6 +127,11 @@ func (ds *DefStatement) String() string {
 	var out bytes.Buffer
 
 	out.WriteString("def ")
+
+	if ds.Receiver != nil {
+		out.WriteString(ds.Receiver.String() + ".")
+	}
+
 	out.WriteString(ds.Name.TokenLiteral())
 	out.WriteString("(")
 

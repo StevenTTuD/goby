@@ -79,11 +79,17 @@ func (g *Generator) compileNextStatement(is *InstructionSet, scope *scope) {
 func (g *Generator) compileClassStmt(is *InstructionSet, stmt *ast.ClassStatement, scope *scope, table *localTable) {
 	is.define(PutSelf)
 
+	if scope.self != nil {
+		fmt.Println(scope.self.String())
+	} else {
+		fmt.Println(scope.program.String())
+	}
+
 	if stmt.SuperClass != nil {
 		g.compileExpression(is, stmt.SuperClass, scope, table)
-		is.define(DefClass, "class:"+stmt.Name.Value, stmt.SuperClassName)
+		is.define(DefClass, "class:"+stmt.Name(), stmt.SuperClassName)
 	} else {
-		is.define(DefClass, "class:"+stmt.Name.Value)
+		is.define(DefClass, "class:"+stmt.Name())
 	}
 
 	is.define(Pop)
@@ -91,7 +97,7 @@ func (g *Generator) compileClassStmt(is *InstructionSet, stmt *ast.ClassStatemen
 
 	// compile class's content
 	newIS := &InstructionSet{}
-	newIS.name = stmt.Name.Value
+	newIS.name = stmt.Name()
 	newIS.isType = ClassDef
 
 	g.compileCodeBlock(newIS, stmt.Body, scope, scope.localTable)
@@ -101,12 +107,12 @@ func (g *Generator) compileClassStmt(is *InstructionSet, stmt *ast.ClassStatemen
 
 func (g *Generator) compileModuleStmt(is *InstructionSet, stmt *ast.ModuleStatement, scope *scope) {
 	is.define(PutSelf)
-	is.define(DefClass, "module:"+stmt.Name.Value)
+	is.define(DefClass, "module:"+stmt.Name())
 	is.define(Pop)
 
 	scope = newScope(stmt, scope)
 	newIS := &InstructionSet{}
-	newIS.name = stmt.Name.Value
+	newIS.name = stmt.Name()
 	newIS.isType = ClassDef
 
 	g.compileCodeBlock(newIS, stmt.Body, scope, scope.localTable)

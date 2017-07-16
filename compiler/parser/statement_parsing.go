@@ -114,7 +114,7 @@ func (p *Parser) parseClassStatement() *ast.ClassStatement {
 		return nil
 	}
 
-	stmt.Name = &ast.Constant{Token: p.curToken, Value: p.curToken.Literal}
+	stmt.SetName(&ast.Constant{Token: p.curToken, Value: p.curToken.Literal})
 
 	// See if there is any inheritance
 	if p.peekTokenIs(token.LT) {
@@ -142,7 +142,7 @@ func (p *Parser) parseModuleStatement() *ast.ModuleStatement {
 		return nil
 	}
 
-	stmt.Name = &ast.Constant{Token: p.curToken, Value: p.curToken.Literal}
+	stmt.SetName(&ast.Constant{Token: p.curToken, Value: p.curToken.Literal})
 	stmt.Body = p.parseBlockStatement()
 
 	return stmt
