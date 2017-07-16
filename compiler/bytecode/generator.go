@@ -14,10 +14,11 @@ type scope struct {
 	localTable *localTable
 	line       int
 	anchor     *anchor
+	outer      *scope
 }
 
-func newScope(stmt ast.Statement) *scope {
-	return &scope{localTable: newLocalTable(0), self: stmt, line: 0}
+func newScope(stmt ast.Statement, outer *scope) *scope {
+	return &scope{localTable: newLocalTable(0), self: stmt, line: 0, outer: outer}
 }
 
 // Generator contains program's AST and will store generated instruction sets

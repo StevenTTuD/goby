@@ -87,7 +87,7 @@ func (g *Generator) compileClassStmt(is *InstructionSet, stmt *ast.ClassStatemen
 	}
 
 	is.define(Pop)
-	scope = newScope(stmt)
+	scope = newScope(stmt, scope)
 
 	// compile class's content
 	newIS := &InstructionSet{}
@@ -104,7 +104,7 @@ func (g *Generator) compileModuleStmt(is *InstructionSet, stmt *ast.ModuleStatem
 	is.define(DefClass, "module:"+stmt.Name.Value)
 	is.define(Pop)
 
-	scope = newScope(stmt)
+	scope = newScope(stmt, scope)
 	newIS := &InstructionSet{}
 	newIS.name = stmt.Name.Value
 	newIS.isType = ClassDef
@@ -125,7 +125,7 @@ func (g *Generator) compileDefStmt(is *InstructionSet, stmt *ast.DefStatement, s
 		is.define(DefMethod, len(stmt.Parameters))
 	}
 
-	scope = newScope(stmt)
+	scope = newScope(stmt, scope)
 
 	// compile method definition's content
 	newIS := &InstructionSet{}
