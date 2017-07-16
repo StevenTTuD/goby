@@ -122,7 +122,7 @@ func (g *Generator) compileModuleStmt(is *InstructionSet, stmt *ast.ModuleStatem
 
 func (g *Generator) compileDefStmt(is *InstructionSet, stmt *ast.DefStatement, scope *scope) {
 	is.define(PutSelf)
-	is.define(PutString, fmt.Sprintf("\"%s\"", stmt.Name.Value))
+	is.define(PutString, fmt.Sprintf("\"%s\"", stmt.Name()))
 
 	switch stmt.Receiver.(type) {
 	case *ast.SelfExpression:
@@ -135,7 +135,7 @@ func (g *Generator) compileDefStmt(is *InstructionSet, stmt *ast.DefStatement, s
 
 	// compile method definition's content
 	newIS := &InstructionSet{}
-	newIS.name = stmt.Name.Value
+	newIS.name = stmt.Name()
 	newIS.isType = MethodDef
 
 	for i := 0; i < len(stmt.Parameters); i++ {

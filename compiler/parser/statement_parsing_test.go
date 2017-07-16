@@ -68,7 +68,10 @@ func TestClassStatement(t *testing.T) {
 
 	defStmt := stmt.Body.Statements[0].(*ast.DefStatement)
 
-	testIdentifier(t, defStmt.Name, "bar")
+	if defStmt.Name() != "bar" {
+		t.Errorf("Expect defStmt's name to be %s. got=%s", "bar", defStmt.Name())
+	}
+
 	testIdentifier(t, defStmt.Parameters[0], "x")
 	testIdentifier(t, defStmt.Parameters[1], "y")
 
@@ -107,7 +110,9 @@ func TestModuleStatement(t *testing.T) {
 
 	defStmt := stmt.Body.Statements[0].(*ast.DefStatement)
 
-	testIdentifier(t, defStmt.Name, "bar")
+	if defStmt.Name() != "bar" {
+		t.Errorf("Expect defStmt's name to be %s. got=%s", "bar", defStmt.Name())
+	}
 	testIdentifier(t, defStmt.Parameters[0], "x")
 	testIdentifier(t, defStmt.Parameters[1], "y")
 
@@ -148,7 +153,9 @@ func TestClassStatementWithInheritance(t *testing.T) {
 
 	defStmt := stmt.Body.Statements[0].(*ast.DefStatement)
 
-	testIdentifier(t, defStmt.Name, "bar")
+	if defStmt.Name() != "bar" {
+		t.Errorf("Expect defStmt's name to be %s. got=%s", "bar", defStmt.Name())
+	}
 	testIdentifier(t, defStmt.Parameters[0], "x")
 	testIdentifier(t, defStmt.Parameters[1], "y")
 

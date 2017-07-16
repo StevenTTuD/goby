@@ -9,7 +9,7 @@ import (
 )
 
 type scope struct {
-	self       ast.Statement
+	self       ast.ScopeNode
 	program    *ast.Program
 	localTable *localTable
 	line       int
@@ -17,7 +17,7 @@ type scope struct {
 	outer      *scope
 }
 
-func newScope(stmt ast.Statement, outer *scope) *scope {
+func newScope(stmt ast.ScopeNode, outer *scope) *scope {
 	return &scope{localTable: newLocalTable(0), self: stmt, line: 0, outer: outer}
 }
 

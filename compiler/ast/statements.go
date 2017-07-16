@@ -6,6 +6,7 @@ import (
 )
 
 type ScopeNode interface {
+	Statement
 	Name() string
 }
 
@@ -113,7 +114,7 @@ func (es *ExpressionStatement) String() string {
 
 type DefStatement struct {
 	Token          token.Token
-	Name           *Identifier
+	name           string
 	Receiver       Expression
 	Parameters     []Expression
 	BlockStatement *BlockStatement
@@ -132,7 +133,7 @@ func (ds *DefStatement) String() string {
 		out.WriteString(ds.Receiver.String() + ".")
 	}
 
-	out.WriteString(ds.Name.TokenLiteral())
+	out.WriteString(ds.Name())
 	out.WriteString("(")
 
 	for i, param := range ds.Parameters {
@@ -148,6 +149,12 @@ func (ds *DefStatement) String() string {
 	out.WriteString("\n}")
 
 	return out.String()
+}
+func (ds *DefStatement) Name() string {
+	return ds.name
+}
+func (ds *DefStatement) SetName(n string) {
+	ds.name = n
 }
 
 // NextStatement represents "next" keyword

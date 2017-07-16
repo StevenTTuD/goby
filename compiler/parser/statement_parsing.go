@@ -52,16 +52,16 @@ func (p *Parser) parseDefMethodStatement() *ast.DefStatement {
 		}
 	}
 
-	stmt.Name = &ast.Identifier{Token: p.curToken, Value: p.curToken.Literal}
+	stmt.SetName(p.curToken.Literal)
 
 	// Setter method def foo=()
 	if p.peekTokenIs(token.Assign) {
-		stmt.Name.Value = stmt.Name.Value + "="
+		stmt.SetName(stmt.Name() + "=")
 		p.nextToken()
 	}
 
 	if p.peekTokenIs(token.Ident) && p.peekTokenAtSameLine() { // def foo x, next token is x and at same line
-		p.error = &Error{Message: fmt.Sprintf("Please add parentheses around method \"%s\"'s parameters. Line: %d", stmt.Name.Value, p.curToken.Line), errType: MethodDefinitionError}
+		p.error = &Error{Message: fmt.Sprintf("Please add parentheses around method \"%s\"'s parameters. Line: %d", stmt.Name(), p.curToken.Line), errType: MethodDefinitionError}
 	}
 
 	if p.peekTokenIs(token.LParen) {
