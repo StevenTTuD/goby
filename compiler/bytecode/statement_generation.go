@@ -79,12 +79,6 @@ func (g *Generator) compileNextStatement(is *InstructionSet, scope *scope) {
 func (g *Generator) compileClassStmt(is *InstructionSet, stmt *ast.ClassStatement, scope *scope, table *localTable) {
 	is.define(PutSelf)
 
-	if scope.self != nil {
-		fmt.Println(scope.self.String())
-	} else {
-		fmt.Println(scope.program.String())
-	}
-
 	if stmt.SuperClass != nil {
 		g.compileExpression(is, stmt.SuperClass, scope, table)
 		is.define(DefClass, "class:"+stmt.Name(), stmt.SuperClassName)
@@ -121,8 +115,23 @@ func (g *Generator) compileModuleStmt(is *InstructionSet, stmt *ast.ModuleStatem
 }
 
 func (g *Generator) compileDefStmt(is *InstructionSet, stmt *ast.DefStatement, scope *scope) {
+	var mn string
+
+	switch exp := stmt.Receiver.(type) {
+	case *ast.SelfExpression:
+		mn = fmt.Sprintf("%s.%s", scope.self.Name(), stmt.Name())
+	case *ast.Identifier:
+		mn = fmt.Sprintf("%s.%s.%s", scope.self.Name(), exp.Value, stmt.Name())
+	default:
+		mn = fmt.Sprintf("%s#%s", scope.self.Name(), stmt.Name())
+	}
+
+	if scope.outer != nil {
+		mn = scope.outer.getFullScopeName(mn)
+	}
+
 	is.define(PutSelf)
-	is.define(PutString, fmt.Sprintf("\"%s\"", stmt.Name()))
+	is.define(PutString, fmt.Sprintf("\"%s\"", mn))
 
 	switch stmt.Receiver.(type) {
 	case *ast.SelfExpression:
@@ -135,7 +144,7 @@ func (g *Generator) compileDefStmt(is *InstructionSet, stmt *ast.DefStatement, s
 
 	// compile method definition's content
 	newIS := &InstructionSet{}
-	newIS.name = stmt.Name()
+	newIS.name = mn
 	newIS.isType = MethodDef
 
 	for i := 0; i < len(stmt.Parameters); i++ {

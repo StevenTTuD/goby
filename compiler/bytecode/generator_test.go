@@ -72,13 +72,13 @@ end
 i
 `
 	expected := `
-<Def:bar>
+<Def:Object::Foo#bar>
 0 putself
 1 invokeblock 0
 2 leave
 <DefClass:Foo>
 0 putself
-1 putstring "bar"
+1 putstring "Object::Foo#bar"
 2 def_method 0
 3 leave
 <Block:1>
@@ -162,7 +162,7 @@ puts(x)
 	compareBytecode(t, bytecode, expected)
 }
 
-func TestCumstomConstructor(t *testing.T) {
+func TestCustomConstructor(t *testing.T) {
 	input := `
 class Foo
   def initialize(x, y)
@@ -180,7 +180,7 @@ Foo.new(100, 50).bar
 `
 
 	expected := `
-<Def:initialize>
+<Def:Object::Foo#initialize>
 0 getlocal 0 0
 1 setinstancevariable @x
 2 getlocal 0 1
@@ -190,7 +190,7 @@ Foo.new(100, 50).bar
 6 send - 1
 7 setinstancevariable @z
 8 leave
-<Def:bar>
+<Def:Object::Foo#bar>
 0 getinstancevariable @x
 1 getinstancevariable @y
 2 send + 1
@@ -199,10 +199,10 @@ Foo.new(100, 50).bar
 5 leave
 <DefClass:Foo>
 0 putself
-1 putstring "initialize"
+1 putstring "Object::Foo#initialize"
 2 def_method 2
 3 putself
-4 putstring "bar"
+4 putstring "Object::Foo#bar"
 5 def_method 0
 6 leave
 <ProgramStart>
@@ -255,22 +255,22 @@ func TestBasicMethodReDefineAndExecution(t *testing.T) {
 	`
 
 	expected := `
-<Def:foo>
+<Def:#foo>
 0 getlocal 0 0
 1 putobject 100
 2 send + 1
 3 leave
-<Def:foo>
+<Def:#foo>
 0 getlocal 0 0
 1 putobject 10
 2 send + 1
 3 leave
 <ProgramStart>
 0 putself
-1 putstring "foo"
+1 putstring "#foo"
 2 def_method 1
 3 putself
-4 putstring "foo"
+4 putstring "#foo"
 5 def_method 1
 6 putself
 7 putobject 11
@@ -293,7 +293,7 @@ func TestBasicMethodDefineAndExecution(t *testing.T) {
 	`
 
 	expected := `
-<Def:foo>
+<Def:#foo>
 0 putobject 10
 1 setlocal 0 2
 2 getlocal 0 0
@@ -304,7 +304,7 @@ func TestBasicMethodDefineAndExecution(t *testing.T) {
 7 leave
 <ProgramStart>
 0 putself
-1 putstring "foo"
+1 putstring "#foo"
 2 def_method 2
 3 putself
 4 putobject 11
@@ -327,7 +327,7 @@ func TestMethodDefWithDefaultValueArgument(t *testing.T) {
 	`
 
 	expected := `
-<Def:foo>
+<Def:#foo>
 0 putobject 10
 1 setlocal 0 1 1
 2 getlocal 0 0
@@ -336,7 +336,7 @@ func TestMethodDefWithDefaultValueArgument(t *testing.T) {
 5 leave
 <ProgramStart>
 0 putself
-1 putstring "foo"
+1 putstring "#foo"
 2 def_method 2
 3 putself
 4 putobject 100

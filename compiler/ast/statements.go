@@ -6,8 +6,8 @@ import (
 )
 
 type ScopeNode interface {
-	Statement
 	Name() string
+	String() string
 }
 
 type ClassStatement struct {

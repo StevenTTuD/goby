@@ -114,12 +114,12 @@ func TestNamespacedClass(t *testing.T) {
 	`
 
 	expected := `
-<Def:bar>
+<Def:Object::Foo::Bar::Baz#bar>
 0 putnil
 1 leave
 <DefClass:Baz>
 0 putself
-1 putstring "bar"
+1 putstring "Object::Foo::Bar::Baz#bar"
 2 def_method 0
 3 leave
 <DefClass:Bar>
@@ -159,12 +159,12 @@ end
 Foo.bar
 `
 	expected := `
-<Def:bar>
+<Def:Object::Foo.bar>
 0 putobject 10
 1 leave
 <DefClass:Foo>
 0 putself
-1 putstring "bar"
+1 putstring "Object::Foo.bar"
 2 def_singleton_method 0
 3 leave
 <ProgramStart>
@@ -194,12 +194,12 @@ end
 Foo.new.bar
 `
 	expected := `
-<Def:bar>
+<Def:Object::Bar#bar>
 0 putobject 10
 1 leave
 <DefClass:Bar>
 0 putself
-1 putstring "bar"
+1 putstring "Object::Bar#bar"
 2 def_method 0
 3 leave
 <DefClass:Foo>
@@ -238,12 +238,12 @@ end
 Foo.new.bar
 `
 	expected := `
-<Def:bar>
+<Def:Object::Bar#bar>
 0 putobject 10
 1 leave
 <DefClass:Bar>
 0 putself
-1 putstring "bar"
+1 putstring "Object::Bar#bar"
 2 def_method 0
 3 leave
 <DefClass:Foo>

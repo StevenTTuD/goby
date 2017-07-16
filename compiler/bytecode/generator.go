@@ -17,6 +17,21 @@ type scope struct {
 	outer      *scope
 }
 
+func (s *scope) getFullScopeName(initV string) string {
+	// self is program
+	if s.self.Name() == "" {
+		return "Object" + "::" + initV
+	}
+
+	v := s.self.Name() + "::" + initV
+
+	if s.outer != nil {
+		return s.outer.getFullScopeName(v)
+	}
+
+	return v
+}
+
 func newScope(stmt ast.ScopeNode, outer *scope) *scope {
 	return &scope{localTable: newLocalTable(0), self: stmt, line: 0, outer: outer}
 }
@@ -94,7 +109,7 @@ func (g *Generator) ResetInstructionSets() {
 
 // InitTopLevelScope sets generator's scope with program node, which means it's the top level scope
 func (g *Generator) InitTopLevelScope(program *ast.Program) {
-	g.scope = &scope{program: program, localTable: newLocalTable(0)}
+	g.scope = &scope{program: program, self: program, localTable: newLocalTable(0)}
 }
 
 // GenerateByteCode returns compiled instructions in string format
