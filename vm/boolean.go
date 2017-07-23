@@ -21,8 +21,8 @@ type BooleanObject struct {
 
 func (vm *VM) initBoolClass() *RClass {
 	b := vm.initializeClass(booleanClass, false)
-	b.setBuiltInMethods(builtinBooleanInstanceMethods(), false)
-	b.setBuiltInMethods(builtInBooleanClassMethods(), true)
+	b.setBuiltInMethods(builtinBooleanInstanceMethods())
+	b.class.setBuiltInMethods(builtInBooleanClassMethods())
 
 	TRUE = &BooleanObject{Value: true, baseObj: &baseObj{class: b}}
 	FALSE = &BooleanObject{Value: false, baseObj: &baseObj{class: b}}

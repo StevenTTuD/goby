@@ -14,7 +14,8 @@ var (
 func initHTTPClass(vm *VM) {
 	net := vm.loadConstant("Net", true)
 	http := vm.initializeClass("HTTP", false)
-	http.setBuiltInMethods(builtinHTTPClassMethods(), true)
+	http.class.setBuiltInMethods(builtinHTTPClassMethods())
+
 	initRequestClass(vm, http)
 	initResponseClass(vm, http)
 
@@ -30,7 +31,7 @@ func initRequestClass(vm *VM, hc *RClass) *RClass {
 	hc.setClassConstant(requestClass)
 	builtinHTTPRequestInstanceMethods := []*BuiltInMethodObject{}
 
-	requestClass.setBuiltInMethods(builtinHTTPRequestInstanceMethods, false)
+	requestClass.setBuiltInMethods(builtinHTTPRequestInstanceMethods)
 
 	httpRequestClass = requestClass
 	return requestClass
@@ -41,7 +42,7 @@ func initResponseClass(vm *VM, hc *RClass) *RClass {
 	hc.setClassConstant(responseClass)
 	builtinHTTPResponseInstanceMethods := []*BuiltInMethodObject{}
 
-	responseClass.setBuiltInMethods(builtinHTTPResponseInstanceMethods, false)
+	responseClass.setBuiltInMethods(builtinHTTPResponseInstanceMethods)
 
 	httpResponseClass = responseClass
 	return responseClass

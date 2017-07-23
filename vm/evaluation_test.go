@@ -852,6 +852,18 @@ func TestClassMethodCall(t *testing.T) {
 				end
 			end
 			class Foo < Bar; end
+			Foo.foo
+			`,
+			10,
+		},
+		{
+			`
+			class Bar
+				def self.foo
+					10
+				end
+			end
+			class Foo < Bar; end
 			class FooBar < Foo; end
 			FooBar.foo
 			`,

@@ -22,8 +22,8 @@ func (vm *VM) initArrayObject(elements []Object) *ArrayObject {
 
 func (vm *VM) initArrayClass() *RClass {
 	ac := vm.initializeClass(arrayClass, false)
-	ac.setBuiltInMethods(builtinArrayInstanceMethods(), false)
-	ac.setBuiltInMethods(builtInArrayClassMethods(), true)
+	ac.setBuiltInMethods(builtinArrayInstanceMethods())
+	ac.class.setBuiltInMethods(builtInArrayClassMethods())
 	return ac
 }
 

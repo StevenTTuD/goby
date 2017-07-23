@@ -31,7 +31,7 @@ func initSimpleServerClass(vm *VM) {
 	initHTTPClass(vm)
 	net := vm.loadConstant("Net", true)
 	simpleServer := vm.initializeClass("SimpleServer", false)
-	simpleServer.setBuiltInMethods(builtinSimpleServerInstanceMethods(), false)
+	simpleServer.setBuiltInMethods(builtinSimpleServerInstanceMethods())
 	net.setClassConstant(simpleServer)
 
 	vm.execGobyLib("net/simple_server.gb")

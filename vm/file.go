@@ -22,8 +22,9 @@ type FileObject struct {
 
 func initFileClass(vm *VM) {
 	fc := vm.initializeClass("File", false)
-	fc.setBuiltInMethods(builtinFileClassMethods(), true)
-	fc.setBuiltInMethods(builtinFileInstanceMethods(), false)
+	fc.setBuiltInMethods(builtinFileInstanceMethods())
+	fc.class.setBuiltInMethods(builtinFileClassMethods())
+
 	vm.objectClass.setClassConstant(fc)
 
 	vm.execGobyLib("file.gb")

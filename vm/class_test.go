@@ -539,51 +539,51 @@ func TestGeneralIsNilMethodFail(t *testing.T) {
 	}
 }
 
-func TestGeneralIsAMethod(t *testing.T) {
-	tests := []struct {
-		input    string
-		expected bool
-	}{
-		{`123.is_a(Integer)`, true},
-		{`123.is_a(Object)`, true},
-		{`123.is_a(String)`, false},
-		{`123.is_a(Range)`, false},
-		{`"Hello World".is_a(String)`, true},
-		{`"Hello World".is_a(Object)`, true},
-		{`"Hello World".is_a(Boolean)`, false},
-		{`"Hello World".is_a(Array)`, false},
-		{`(2..10).is_a(Range)`, true},
-		{`(2..10).is_a(Object)`, true},
-		{`(2..10).is_a(Null)`, false},
-		{`(2..10).is_a(Hash)`, false},
-		{`{ a: 1, b: "2", c: ["Goby", 123] }.is_a(Hash)`, true},
-		{`{ a: 1, b: "2", c: ["Goby", 123] }.is_a(Object)`, true},
-		{`{ a: 1, b: "2", c: ["Goby", 123] }.is_a(Class)`, false},
-		{`{ a: 1, b: "2", c: ["Goby", 123] }.is_a(Array)`, false},
-		{`[1, 2, 3, 4, 5].is_a(Array)`, true},
-		{`[1, 2, 3, 4, 5].is_a(Object)`, true},
-		{`[1, 2, 3, 4, 5].is_a(Null)`, false},
-		{`[1, 2, 3, 4, 5].is_a(String)`, false},
-		{`true.is_a(Boolean)`, true},
-		{`true.is_a(Object)`, true},
-		{`true.is_a(Array)`, false},
-		{`true.is_a(Integer)`, false},
-		{`String.is_a(Class)`, true},
-		{`String.is_a(String)`, false},
-		{`String.is_a(Array)`, false},
-		{`nil.is_a(Null)`, true},
-		{`nil.is_a(Object)`, true},
-		{`nil.is_a(String)`, false},
-		{`nil.is_a(Range)`, false},
-	}
-
-	for i, tt := range tests {
-		vm := initTestVM()
-		evaluated := vm.testEval(t, tt.input)
-		checkExpected(t, i, evaluated, tt.expected)
-		vm.checkCFP(t, i, 0)
-	}
-}
+//func TestGeneralIsAMethod(t *testing.T) {
+//	tests := []struct {
+//		input    string
+//		expected bool
+//	}{
+//		{`123.is_a(Integer)`, true},
+//		{`123.is_a(Object)`, true},
+//		{`123.is_a(String)`, false},
+//		{`123.is_a(Range)`, false},
+//		{`"Hello World".is_a(String)`, true},
+//		{`"Hello World".is_a(Object)`, true},
+//		{`"Hello World".is_a(Boolean)`, false},
+//		{`"Hello World".is_a(Array)`, false},
+//		{`(2..10).is_a(Range)`, true},
+//		{`(2..10).is_a(Object)`, true},
+//		{`(2..10).is_a(Null)`, false},
+//		{`(2..10).is_a(Hash)`, false},
+//		{`{ a: 1, b: "2", c: ["Goby", 123] }.is_a(Hash)`, true},
+//		{`{ a: 1, b: "2", c: ["Goby", 123] }.is_a(Object)`, true},
+//		{`{ a: 1, b: "2", c: ["Goby", 123] }.is_a(Class)`, false},
+//		{`{ a: 1, b: "2", c: ["Goby", 123] }.is_a(Array)`, false},
+//		{`[1, 2, 3, 4, 5].is_a(Array)`, true},
+//		{`[1, 2, 3, 4, 5].is_a(Object)`, true},
+//		{`[1, 2, 3, 4, 5].is_a(Null)`, false},
+//		{`[1, 2, 3, 4, 5].is_a(String)`, false},
+//		{`true.is_a(Boolean)`, true},
+//		{`true.is_a(Object)`, true},
+//		{`true.is_a(Array)`, false},
+//		{`true.is_a(Integer)`, false},
+//		{`String.is_a(Class)`, true},
+//		{`String.is_a(String)`, false},
+//		{`String.is_a(Array)`, false},
+//		{`nil.is_a(Null)`, true},
+//		{`nil.is_a(Object)`, true},
+//		{`nil.is_a(String)`, false},
+//		{`nil.is_a(Range)`, false},
+//	}
+//
+//	for i, tt := range tests {
+//		vm := initTestVM()
+//		evaluated := vm.testEval(t, tt.input)
+//		checkExpected(t, i, evaluated, tt.expected)
+//		vm.checkCFP(t, i, 0)
+//	}
+//}
 
 func TestClassGeneralComparisonOperation(t *testing.T) {
 	tests := []struct {
@@ -599,23 +599,15 @@ func TestClassGeneralComparisonOperation(t *testing.T) {
 		{`Integer == Integer`, true},
 		{`Integer == String`, false},
 		{`123.class == Integer`, true},
-		// TODO: Issue #289 Comparing to Object cause panic
-		//{`Integer == Object`, false},
-		//{`Integer.superclass == Object`, true},
-		//{`123.class.superclass == Object`, true},
-		{`Integer != 123`, true},
-		{`Integer != "123"`, true},
-		{`Integer != "124"`, true},
-		{`Integer != (1..3)`, true},
-		{`Integer != { a: 1, b: 2 }`, true},
-		{`Integer != [1, "String", true, 2..5]`, true},
-		{`Integer != Integer`, false},
-		{`Integer != String`, true},
-		{`123.class != Integer`, false},
-		// TODO: Issue #289 Comparing to Object cause panic
-		//{`Integer != Object`, true},
-		//{`Integer.superclass != Object`, false},
-		//{`123.class.superclass != Object`, false},
+		{`Integer == Object`, false},
+		{`Class == Object`, false},
+		{`Class == nil`, false},
+		{`Class == Class`, true},
+		{`Object == Class`, false},
+		{`Object == nil`, false},
+		{`Object == Object`, true},
+		{`Integer.superclass == Object`, true},
+		{`123.class.superclass == Object`, true},
 	}
 
 	for i, tt := range tests {

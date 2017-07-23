@@ -16,11 +16,11 @@ func (vm *VM) initStructObject(d interface{}) *StructObject {
 }
 
 func (vm *VM) initStructClass() *RClass {
-	sc := vm.initializeClass(structClass, false)
-	sc.setBuiltInMethods(builtinStructClassMethods(), true)
-	sc.setBuiltInMethods(builtinStructInstanceMethods(), false)
-	vm.objectClass.setClassConstant(sc)
-	return sc
+	c := vm.initializeClass(structClass, false)
+	c.setBuiltInMethods(builtinStructInstanceMethods())
+	c.class.setBuiltInMethods(builtinStructClassMethods())
+
+	return c
 }
 
 // Only initialize file related methods after it's being required.

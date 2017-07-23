@@ -14,8 +14,9 @@ type NullObject struct {
 
 func (vm *VM) initNullClass() *RClass {
 	nc := vm.initializeClass(nullClass, false)
-	nc.setBuiltInMethods(builtInNullInstanceMethods(), false)
-	nc.setBuiltInMethods(builtInNullClassMethods(), true)
+	nc.setBuiltInMethods(builtInNullInstanceMethods())
+	nc.class.setBuiltInMethods(builtInNullClassMethods())
+
 	NULL = &NullObject{baseObj: &baseObj{class: nc}}
 	return nc
 }

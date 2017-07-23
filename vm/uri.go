@@ -13,7 +13,7 @@ func initURIClass(vm *VM) {
 	https.pseudoSuperClass = http
 	uri.setClassConstant(http)
 	uri.setClassConstant(https)
-	uri.setBuiltInMethods(builtinURIClassMethods(), true)
+	uri.class.setBuiltInMethods(builtinURIClassMethods())
 
 	attrs := []Object{
 		vm.initStringObject("host"),

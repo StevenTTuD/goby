@@ -40,8 +40,9 @@ func (vm *VM) initIntegerObject(value int) *IntegerObject {
 
 func (vm *VM) initIntegerClass() *RClass {
 	ic := vm.initializeClass(integerClass, false)
-	ic.setBuiltInMethods(builtinIntegerInstanceMethods(), false)
-	ic.setBuiltInMethods(builtInIntegerClassMethods(), true)
+	ic.setBuiltInMethods(builtinIntegerInstanceMethods())
+	ic.class.setBuiltInMethods(builtInIntegerClassMethods())
+
 	return ic
 }
 

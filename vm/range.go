@@ -38,8 +38,9 @@ func (vm *VM) initRangeObject(start, end int) *RangeObject {
 
 func (vm *VM) initRangeClass() *RClass {
 	rc := vm.initializeClass(rangeClass, false)
-	rc.setBuiltInMethods(builtInRangeInstanceMethods(), false)
-	rc.setBuiltInMethods(builtInRangeClassMethods(), true)
+	rc.setBuiltInMethods(builtInRangeInstanceMethods())
+	rc.class.setBuiltInMethods(builtInRangeClassMethods())
+
 	return rc
 }
 

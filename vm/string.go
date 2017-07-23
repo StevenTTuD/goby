@@ -39,10 +39,11 @@ func (vm *VM) initStringObject(value string) *StringObject {
 }
 
 func (vm *VM) initStringClass() *RClass {
-	sc := vm.initializeClass(stringClass, false)
-	sc.setBuiltInMethods(builtinStringInstanceMethods(), false)
-	sc.setBuiltInMethods(builtInStringClassMethods(), true)
-	return sc
+	c := vm.initializeClass(stringClass, false)
+	c.setBuiltInMethods(builtinStringInstanceMethods())
+	c.class.setBuiltInMethods(builtInStringClassMethods())
+
+	return c
 }
 
 func builtInStringClassMethods() []*BuiltInMethodObject {

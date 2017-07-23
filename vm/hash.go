@@ -50,8 +50,9 @@ func (vm *VM) initHashObject(pairs map[string]Object) *HashObject {
 
 func (vm *VM) initHashClass() *RClass {
 	hc := vm.initializeClass(hashClass, false)
-	hc.setBuiltInMethods(builtinHashInstanceMethods(), false)
-	hc.setBuiltInMethods(builtInHashClassMethods(), true)
+	hc.setBuiltInMethods(builtinHashInstanceMethods())
+	hc.class.setBuiltInMethods(builtInHashClassMethods())
+
 	return hc
 }
 

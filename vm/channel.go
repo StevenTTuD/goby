@@ -19,8 +19,9 @@ type ChannelObject struct {
 
 func (vm *VM) initChannelClass() *RClass {
 	class := vm.initializeClass(channelClass, false)
-	class.setBuiltInMethods(builtinChannelClassMethods(), true)
-	class.setBuiltInMethods(builtinChannelInstanceMethods(), false)
+	class.setBuiltInMethods(builtinChannelInstanceMethods())
+	class.class.setBuiltInMethods(builtinChannelClassMethods())
+
 	return class
 }
 

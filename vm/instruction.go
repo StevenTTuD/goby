@@ -3,6 +3,7 @@ package vm
 import (
 	"github.com/goby-lang/goby/compiler/bytecode"
 	"strings"
+
 )
 
 type operation func(t *thread, cf *callFrame, args ...interface{})
@@ -276,20 +277,13 @@ var builtInActions = map[operationType]*action{
 			is, _ := t.getMethodIS(methodName, cf.instructionSet.filename)
 			method := &MethodObject{Name: methodName, argc: argCount, instructionSet: is, baseObj: &baseObj{class: t.vm.topLevelClass(methodClass)}}
 
-			v := t.stack.pop().Target
+			object := t.stack.pop().Target
 
-			switch self := v.(type) {
-			case *RClass:
-				if self.pseudoSuperClass.Singleton {
-					self.pseudoSuperClass.ClassMethods.set(methodName, method)
-				}
-
-				class := t.vm.initializeClass(self.Name+"singleton", false)
-				class.Singleton = true
-				class.ClassMethods.set(methodName, method)
-				class.superClass = self.superClass
-				self.superClass = class
+			if object.Class().Singleton {
+				object.Class().Methods.set(methodName, method)
+				return
 			}
+
 			// TODO: Support something like:
 			// ```
 			// f = Foo.new
@@ -321,6 +315,7 @@ var builtInActions = map[operationType]*action{
 					}
 
 					class.pseudoSuperClass = inheritedClass
+					class.class.superClass = inheritedClass.class
 					class.superClass = inheritedClass
 				}
 			}
@@ -347,11 +342,12 @@ var builtInActions = map[operationType]*action{
 			receiverPr := argPr - 1
 			receiver := t.stack.Data[receiverPr].Target
 
-			switch r := receiver.(type) {
-			case *RClass:
-				method = r.lookupClassMethod(methodName)
-			default:
-				method = r.Class().lookupInstanceMethod(methodName)
+			method = receiver.Class().lookupInstanceMethod(methodName)
+
+			// Main object can use some class methods like `include`
+			// TODO: Main object shouldn't have access to class methods, its methods should be defined separately.
+			if receiver == t.vm.mainObj && methodName == "include" {
+				method = receiver.Class().lookupInstanceMethod(methodName)
 			}
 
 			if method == nil {

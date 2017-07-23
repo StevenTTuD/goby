@@ -18,9 +18,9 @@ func (vm *VM) initPluginObject(fn string, p *plugin.Plugin) *PluginObject {
 
 func (vm *VM) initPluginClass() *RClass {
 	pc := vm.initializeClass(pluginClass, false)
-	pc.setBuiltInMethods(builtinPluginClassMethods(), true)
-	pc.setBuiltInMethods(builtinPluginInstanceMethods(), false)
-	vm.objectClass.setClassConstant(pc)
+	pc.setBuiltInMethods(builtinPluginInstanceMethods())
+	pc.class.setBuiltInMethods(builtinPluginClassMethods())
+
 	return pc
 }
 

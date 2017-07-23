@@ -41,14 +41,10 @@ type RClass struct {
 	// Methods contains its instances' methods
 	Methods *environment
 	// ClassMethods contains this class's methods
-	ClassMethods *environment
-	// pseudoSuperClass points to the class it inherits
 	pseudoSuperClass *RClass
 	// This is the class where we should looking for a method.
 	// It can be normal class, singleton class or a module.
 	superClass *RClass
-	// Class points to this class's class, which should be ClassClass
-	class *RClass
 	// Singleton is a flag marks if this class a singleton class
 	Singleton bool
 	isModule  bool
@@ -61,27 +57,37 @@ func initClassClass() *RClass {
 	classClass := &RClass{
 		Name:         classClass,
 		Methods:      newEnvironment(),
-		ClassMethods: newEnvironment(),
 		constants:    make(map[string]*Pointer),
+		baseObj:      &baseObj{},
 	}
 
-	classClass.setBuiltInMethods(builtinCommonInstanceMethods(), false)
-	classClass.setBuiltInMethods(builtinCommonInstanceMethods(), true)
-	classClass.setBuiltInMethods(builtinClassClassMethods(), true)
+	classClass.class = classClass
+
+	classClass.setBuiltInMethods(builtinClassClassMethods())
+	classClass.setBuiltInMethods(builtinCommonInstanceMethods())
 
 	return classClass
 }
 
-func initObjectClass(c *RClass) *RClass {
-	objectClass := &RClass{
-		Name:         objectClass,
-		class:        c,
-		ClassMethods: newEnvironment(),
-		Methods:      newEnvironment(),
-		constants:    make(map[string]*Pointer),
+func initObjectClass(class *RClass) *RClass {
+	if class.Name != classClass {
+		panic(fmt.Sprintf("Object class' class should be Class. got: %s", class.Name))
 	}
 
-	objectClass.setBuiltInMethods(builtinCommonInstanceMethods(), false)
+	objectClass := &RClass{
+		Name:         objectClass,
+		Methods:      newEnvironment(),
+		constants:    make(map[string]*Pointer),
+		baseObj: &baseObj{
+			class: class,
+		},
+	}
+
+	objectClass.superClass = objectClass
+	class.superClass = objectClass
+
+	objectClass.setBuiltInMethods(builtinClassClassMethods())
+	objectClass.setBuiltInMethods(builtinCommonInstanceMethods())
 
 	return objectClass
 }
@@ -454,7 +460,7 @@ func builtinCommonInstanceMethods() []*BuiltInMethodObject {
 					}
 
 					c := args[0]
-					gobyClass, ok := c.(*RClass)
+					argClass, ok := c.(*RClass)
 
 					if !ok {
 						return t.vm.initErrorObject(TypeError, WrongArgumentTypeFormat, classClass, c.Class().Name)
@@ -463,11 +469,12 @@ func builtinCommonInstanceMethods() []*BuiltInMethodObject {
 					receiverClass := receiver.Class()
 
 					for {
-						if receiverClass.Name == gobyClass.Name {
+						if receiverClass.Name == argClass.Name {
 							return TRUE
 						}
+
 						receiverClass = receiverClass.superClass
-						if receiverClass == nil {
+						if receiverClass == nil || receiverClass.Name == objectClass {
 							break
 						}
 					}
@@ -877,7 +884,10 @@ func builtinClassClassMethods() []*BuiltInMethodObject {
 // a class instance with given class name.
 func (vm *VM) initializeClass(name string, isModule bool) *RClass {
 	class := vm.createRClass(name)
+	sc := vm.createRClass(fmt.Sprintf("#<Class:%s>", name))
+	sc.Singleton = true
 	class.isModule = isModule
+	class.class = sc
 
 	return class
 }
@@ -889,7 +899,6 @@ func (vm *VM) createRClass(className string) *RClass {
 	return &RClass{
 		Name:             className,
 		Methods:          newEnvironment(),
-		ClassMethods:     newEnvironment(),
 		pseudoSuperClass: objectClass,
 		superClass:       objectClass,
 		constants:        make(map[string]*Pointer),
@@ -913,47 +922,22 @@ func (c *RClass) toJSON() string {
 	return c.toString()
 }
 
-func (c *RClass) setBuiltInMethods(methodList []*BuiltInMethodObject, classMethods bool) {
+func (c *RClass) setBuiltInMethods(methodList []*BuiltInMethodObject) {
 	for _, m := range methodList {
 		c.Methods.set(m.Name, m)
 	}
-
-	if classMethods {
-		for _, m := range methodList {
-			c.ClassMethods.set(m.Name, m)
-		}
-	}
-}
-
-func (c *RClass) lookupClassMethod(methodName string) Object {
-	method, ok := c.ClassMethods.get(methodName)
-
-	if !ok {
-		if c.superClass != nil {
-			return c.superClass.lookupClassMethod(methodName)
-		}
-		if c.class != nil {
-			return c.class.lookupClassMethod(methodName)
-		}
-		return nil
-	}
-
-	return method
 }
 
 func (c *RClass) lookupInstanceMethod(methodName string) Object {
 	method, ok := c.Methods.get(methodName)
 
 	if !ok {
-		if c.superClass != nil {
-			return c.superClass.lookupInstanceMethod(methodName)
+		// class is Object and it doesn't include modules
+		if c.superClass == c {
+			return nil
 		}
 
-		if c.class != nil {
-			return c.class.lookupInstanceMethod(methodName)
-		}
-
-		return nil
+		return c.superClass.lookupInstanceMethod(methodName)
 	}
 
 	return method
@@ -967,7 +951,7 @@ func (c *RClass) lookupConstant(constName string, findInScope bool) *Pointer {
 			return c.scope.lookupConstant(constName, true)
 		}
 
-		if c.superClass != nil {
+		if c.superClass != nil && c.superClass != c {
 			return c.superClass.lookupConstant(constName, false)
 		}
 
