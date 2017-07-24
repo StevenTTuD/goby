@@ -539,49 +539,71 @@ func TestGeneralIsNilMethodFail(t *testing.T) {
 	}
 }
 
-//func TestGeneralIsAMethod(t *testing.T) {
-//	tests := []struct {
-//		input    string
-//		expected bool
+func TestGeneralIsAMethod(t *testing.T) {
+	tests := []struct {
+		input    string
+		expected bool
+	}{
+		{`123.is_a(Integer)`, true},
+		{`123.is_a(Object)`, true},
+		{`123.is_a(String)`, false},
+		{`123.is_a(Range)`, false},
+		{`"Hello World".is_a(String)`, true},
+		{`"Hello World".is_a(Object)`, true},
+		{`"Hello World".is_a(Boolean)`, false},
+		{`"Hello World".is_a(Array)`, false},
+		{`(2..10).is_a(Range)`, true},
+		{`(2..10).is_a(Object)`, true},
+		{`(2..10).is_a(Null)`, false},
+		{`(2..10).is_a(Hash)`, false},
+		{`{ a: 1, b: "2", c: ["Goby", 123] }.is_a(Hash)`, true},
+		{`{ a: 1, b: "2", c: ["Goby", 123] }.is_a(Object)`, true},
+		{`{ a: 1, b: "2", c: ["Goby", 123] }.is_a(Class)`, false},
+		{`{ a: 1, b: "2", c: ["Goby", 123] }.is_a(Array)`, false},
+		{`[1, 2, 3, 4, 5].is_a(Array)`, true},
+		{`[1, 2, 3, 4, 5].is_a(Object)`, true},
+		{`[1, 2, 3, 4, 5].is_a(Null)`, false},
+		{`[1, 2, 3, 4, 5].is_a(String)`, false},
+		{`true.is_a(Boolean)`, true},
+		{`true.is_a(Object)`, true},
+		{`true.is_a(Array)`, false},
+		{`true.is_a(Integer)`, false},
+		{`String.is_a(Class)`, true},
+		{`String.is_a(String)`, false},
+		{`String.is_a(Array)`, false},
+		{`nil.is_a(Null)`, true},
+		{`nil.is_a(Object)`, true},
+		{`nil.is_a(String)`, false},
+		{`nil.is_a(Range)`, false},
+	}
+
+	for i, tt := range tests {
+		vm := initTestVM()
+		evaluated := vm.testEval(t, tt.input)
+		checkExpected(t, i, evaluated, tt.expected)
+		vm.checkCFP(t, i, 0)
+	}
+}
+
+//func TestGeneralIsAMethodFail(t *testing.T) {
+//	testsFail := []struct {
+//		input   string
+//		errType string
+//		errMsg  string
 //	}{
-//		{`123.is_a(Integer)`, true},
-//		{`123.is_a(Object)`, true},
-//		{`123.is_a(String)`, false},
-//		{`123.is_a(Range)`, false},
-//		{`"Hello World".is_a(String)`, true},
-//		{`"Hello World".is_a(Object)`, true},
-//		{`"Hello World".is_a(Boolean)`, false},
-//		{`"Hello World".is_a(Array)`, false},
-//		{`(2..10).is_a(Range)`, true},
-//		{`(2..10).is_a(Object)`, true},
-//		{`(2..10).is_a(Null)`, false},
-//		{`(2..10).is_a(Hash)`, false},
-//		{`{ a: 1, b: "2", c: ["Goby", 123] }.is_a(Hash)`, true},
-//		{`{ a: 1, b: "2", c: ["Goby", 123] }.is_a(Object)`, true},
-//		{`{ a: 1, b: "2", c: ["Goby", 123] }.is_a(Class)`, false},
-//		{`{ a: 1, b: "2", c: ["Goby", 123] }.is_a(Array)`, false},
-//		{`[1, 2, 3, 4, 5].is_a(Array)`, true},
-//		{`[1, 2, 3, 4, 5].is_a(Object)`, true},
-//		{`[1, 2, 3, 4, 5].is_a(Null)`, false},
-//		{`[1, 2, 3, 4, 5].is_a(String)`, false},
-//		{`true.is_a(Boolean)`, true},
-//		{`true.is_a(Object)`, true},
-//		{`true.is_a(Array)`, false},
-//		{`true.is_a(Integer)`, false},
-//		{`String.is_a(Class)`, true},
-//		{`String.is_a(String)`, false},
-//		{`String.is_a(Array)`, false},
-//		{`nil.is_a(Null)`, true},
-//		{`nil.is_a(Object)`, true},
-//		{`nil.is_a(String)`, false},
-//		{`nil.is_a(Range)`, false},
+//		{`123.is_a`, ArgumentError, "ArgumentError: Expect 1 argument. got: 0"},
+//		{`Class.is_a`, ArgumentError, "ArgumentError: Expect 1 argument. got: 0"},
+//		{`123.is_a(123, 456)`, ArgumentError, "ArgumentError: Expect 1 argument. got: 2"},
+//		{`123.is_a(Integer, String)`, ArgumentError, "ArgumentError: Expect 1 argument. got: 2"},
+//		{`123.is_a(true)`, TypeError, "TypeError: Expect argument to be Class. got: Boolean"},
+//		{`Class.is_a(true)`, TypeError, "TypeError: Expect argument to be Class. got: Boolean"},
 //	}
 //
-//	for i, tt := range tests {
+//	for i, tt := range testsFail {
 //		vm := initTestVM()
 //		evaluated := vm.testEval(t, tt.input)
-//		checkExpected(t, i, evaluated, tt.expected)
-//		vm.checkCFP(t, i, 0)
+//		checkError(t, i, evaluated, tt.errType, tt.errMsg)
+//		vm.checkCFP(t, i, 1)
 //	}
 //}
 
@@ -615,28 +637,6 @@ func TestClassGeneralComparisonOperation(t *testing.T) {
 		evaluated := vm.testEval(t, tt.input)
 		checkExpected(t, i, evaluated, tt.expected)
 		vm.checkCFP(t, i, 0)
-	}
-}
-
-func TestGeneralIsAMethodFail(t *testing.T) {
-	testsFail := []struct {
-		input   string
-		errType string
-		errMsg  string
-	}{
-		{`123.is_a`, ArgumentError, "ArgumentError: Expect 1 argument. got: 0"},
-		{`Class.is_a`, ArgumentError, "ArgumentError: Expect 1 argument. got: 0"},
-		{`123.is_a(123, 456)`, ArgumentError, "ArgumentError: Expect 1 argument. got: 2"},
-		{`123.is_a(Integer, String)`, ArgumentError, "ArgumentError: Expect 1 argument. got: 2"},
-		{`123.is_a(true)`, TypeError, "TypeError: Expect argument to be Class. got: Boolean"},
-		{`Class.is_a(true)`, TypeError, "TypeError: Expect argument to be Class. got: Boolean"},
-	}
-
-	for i, tt := range testsFail {
-		vm := initTestVM()
-		evaluated := vm.testEval(t, tt.input)
-		checkError(t, i, evaluated, tt.errType, tt.errMsg)
-		vm.checkCFP(t, i, 1)
 	}
 }
 

@@ -53,15 +53,33 @@ type RClass struct {
 	*baseObj
 }
 
+func (c *RClass) inherits(sc *RClass) {
+	c.pseudoSuperClass = sc
+	c.superClass = sc
+	// Singleton class inheritance
+	c.class.superClass = sc.class
+}
+
 func initClassClass() *RClass {
 	classClass := &RClass{
-		Name:         classClass,
-		Methods:      newEnvironment(),
-		constants:    make(map[string]*Pointer),
-		baseObj:      &baseObj{},
+		Name:      classClass,
+		Methods:   newEnvironment(),
+		constants: make(map[string]*Pointer),
+		baseObj:   &baseObj{},
 	}
 
-	classClass.class = classClass
+	// Set Class class' singleton class
+	sc := &RClass{
+		Name:      "#<Class:Class>",
+		Methods:   newEnvironment(),
+		constants: make(map[string]*Pointer),
+		isModule:  false,
+		Singleton: true,
+		baseObj:   &baseObj{class: classClass, pseudoClass: classClass, InstanceVariables: newEnvironment()},
+	}
+
+	classClass.class = sc
+	classClass.pseudoClass = classClass
 
 	classClass.setBuiltInMethods(builtinClassClassMethods())
 	classClass.setBuiltInMethods(builtinCommonInstanceMethods())
@@ -75,16 +93,28 @@ func initObjectClass(class *RClass) *RClass {
 	}
 
 	objectClass := &RClass{
-		Name:         objectClass,
-		Methods:      newEnvironment(),
-		constants:    make(map[string]*Pointer),
+		Name:      objectClass,
+		Methods:   newEnvironment(),
+		constants: make(map[string]*Pointer),
 		baseObj: &baseObj{
-			class: class,
+			pseudoClass: class,
 		},
 	}
 
-	objectClass.superClass = objectClass
-	class.superClass = objectClass
+	// Set Object class' singleton class
+	sc := &RClass{
+		Name:      "#<Class:Object>",
+		Methods:   newEnvironment(),
+		constants: make(map[string]*Pointer),
+		isModule:  false,
+		Singleton: true,
+		baseObj:   &baseObj{class: class, pseudoClass: class, InstanceVariables: newEnvironment()},
+	}
+	objectClass.class = sc
+
+	objectClass.inherits(objectClass)
+	class.inherits(objectClass)
+	sc.inherits(class)
 
 	objectClass.setBuiltInMethods(builtinClassClassMethods())
 	objectClass.setBuiltInMethods(builtinCommonInstanceMethods())
@@ -318,7 +348,7 @@ func builtinCommonInstanceMethods() []*BuiltInMethodObject {
 
 					switch r := receiver.(type) {
 					case Object:
-						return r.Class()
+						return r.PseudoClass()
 					default:
 						return &Error{Message: "Can't call class on %T" + string(r.Class().ReturnName())}
 					}
@@ -466,19 +496,76 @@ func builtinCommonInstanceMethods() []*BuiltInMethodObject {
 						return t.vm.initErrorObject(TypeError, WrongArgumentTypeFormat, classClass, c.Class().Name)
 					}
 
-					receiverClass := receiver.Class()
 
-					for {
-						if receiverClass.Name == argClass.Name {
-							return TRUE
+
+					switch r := receiver.(type) {
+					case *RClass:
+						/*
+							Check if receiver's class (not including singleton classes) matches target class.
+
+							Examples:
+
+							```
+							Object.is_a(Class)
+							Integer.is_a(Class)
+							```
+						*/
+						for {
+							if r.PseudoClass() == argClass {
+								return TRUE
+							}
+
+							if r.PseudoClass().Name == classClass {
+								break
+							}
+
+
+							r = r.PseudoClass()
 						}
 
-						receiverClass = receiverClass.superClass
-						if receiverClass == nil || receiverClass.Name == objectClass {
-							break
+						for {
+							if r.pseudoSuperClass == argClass {
+								return TRUE
+							}
+
+							if r.Name == objectClass {
+								break
+							}
+
+							r = r.pseudoSuperClass
 						}
+
+						return FALSE
+					default:
+						c := receiver.PseudoClass()
+
+						for {
+							if c == argClass {
+								return TRUE
+							}
+
+							if c.PseudoClass().Name == classClass {
+								break
+							}
+
+
+							c = c.PseudoClass()
+						}
+
+						for {
+							if c.pseudoSuperClass == argClass {
+								return TRUE
+							}
+
+							if c.Name == objectClass {
+								break
+							}
+
+							c = c.pseudoSuperClass
+						}
+
+						return FALSE
 					}
-					return FALSE
 				}
 			},
 		},
@@ -903,7 +990,7 @@ func (vm *VM) createRClass(className string) *RClass {
 		superClass:       objectClass,
 		constants:        make(map[string]*Pointer),
 		isModule:         false,
-		baseObj:          &baseObj{class: classClass, InstanceVariables: newEnvironment()},
+		baseObj:          &baseObj{pseudoClass: classClass, InstanceVariables: newEnvironment()},
 	}
 }
 
@@ -929,6 +1016,8 @@ func (c *RClass) setBuiltInMethods(methodList []*BuiltInMethodObject) {
 }
 
 func (c *RClass) lookupInstanceMethod(methodName string) Object {
+	fmt.Println(c.Name)
+	fmt.Println(methodName)
 	method, ok := c.Methods.get(methodName)
 
 	if !ok {
@@ -952,6 +1041,9 @@ func (c *RClass) lookupConstant(constName string, findInScope bool) *Pointer {
 		}
 
 		if c.superClass != nil && c.superClass != c {
+			fmt.Println(c.Name)
+			fmt.Println(c.superClass.Name)
+			fmt.Println(constName)
 			return c.superClass.lookupConstant(constName, false)
 		}
 
@@ -998,7 +1090,7 @@ func (c *RClass) returnSuperClass() *RClass {
 }
 
 func (c *RClass) initializeInstance() *RObject {
-	instance := &RObject{baseObj: &baseObj{class: c, InstanceVariables: newEnvironment()}}
+	instance := &RObject{baseObj: &baseObj{class: c, pseudoClass: c, InstanceVariables: newEnvironment()}}
 
 	return instance
 }

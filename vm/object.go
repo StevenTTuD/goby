@@ -7,6 +7,7 @@ import (
 // Object represents all objects in Goby, including Array, Integer or even Method and Error.
 type Object interface {
 	Class() *RClass
+	PseudoClass() *RClass
 	setClass(*RClass)
 	toString() string
 	toJSON() string
@@ -36,13 +37,18 @@ type baseObj struct {
 	InstanceVariables *environment
 }
 
-// Class will return object's class
+// Class will return object's real class, which means including singleton class
 func (b *baseObj) Class() *RClass {
 	if b.class == nil {
 		panic(fmt.Sprint("Object doesn't have class."))
 	}
 
 	return b.class
+}
+
+// Class will return object's representative class, not including singleton class
+func (b *baseObj) PseudoClass() *RClass {
+	return b.pseudoClass
 }
 
 func (b *baseObj) setClass(c *RClass) {

@@ -200,7 +200,8 @@ func builtinFileClassMethods() []*BuiltInMethodObject {
 					}
 
 					// TODO: Refactor this class retrieval mess
-					fileObj := &FileObject{File: f, baseObj: &baseObj{class: t.vm.topLevelClass("File")}}
+					c := t.vm.topLevelClass("File")
+					fileObj := &FileObject{File: f, baseObj: &baseObj{class: c, pseudoClass: c}}
 
 					return fileObj
 				}

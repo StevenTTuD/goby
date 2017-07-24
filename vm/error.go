@@ -50,7 +50,7 @@ func (vm *VM) initErrorObject(errorType, format string, args ...interface{}) *Er
 	errClass := vm.objectClass.getClassConstant(errorType)
 
 	return &Error{
-		baseObj: &baseObj{class: errClass},
+		baseObj: &baseObj{class: errClass, pseudoClass: errClass},
 		Message: fmt.Sprintf(errorType+": "+format, args...),
 	}
 }

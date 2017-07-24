@@ -13,7 +13,8 @@ type PluginObject struct {
 }
 
 func (vm *VM) initPluginObject(fn string, p *plugin.Plugin) *PluginObject {
-	return &PluginObject{fn: fn, plugin: p, baseObj: &baseObj{class: vm.topLevelClass(pluginClass)}}
+	c := vm.topLevelClass(pluginClass)
+	return &PluginObject{fn: fn, plugin: p, baseObj: &baseObj{class: c, pseudoClass: c}}
 }
 
 func (vm *VM) initPluginClass() *RClass {

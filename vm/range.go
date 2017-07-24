@@ -29,8 +29,9 @@ type RangeObject struct {
 }
 
 func (vm *VM) initRangeObject(start, end int) *RangeObject {
+	c := vm.topLevelClass(rangeClass)
 	return &RangeObject{
-		baseObj: &baseObj{class: vm.topLevelClass(rangeClass)},
+		baseObj: &baseObj{class: c, pseudoClass: c},
 		Start:   start,
 		End:     end,
 	}

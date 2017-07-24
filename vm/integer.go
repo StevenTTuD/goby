@@ -31,8 +31,10 @@ type IntegerObject struct {
 }
 
 func (vm *VM) initIntegerObject(value int) *IntegerObject {
+	c := vm.topLevelClass(integerClass)
+
 	return &IntegerObject{
-		baseObj: &baseObj{class: vm.topLevelClass(integerClass)},
+		baseObj: &baseObj{class: c, pseudoClass: c},
 		Value:   value,
 		flag:    integer,
 	}

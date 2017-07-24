@@ -14,8 +14,9 @@ type ArrayObject struct {
 }
 
 func (vm *VM) initArrayObject(elements []Object) *ArrayObject {
+	c := vm.topLevelClass(arrayClass)
 	return &ArrayObject{
-		baseObj:  &baseObj{class: vm.topLevelClass(arrayClass)},
+		baseObj:  &baseObj{class: c, pseudoClass: c},
 		Elements: elements,
 	}
 }

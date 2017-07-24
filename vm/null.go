@@ -17,7 +17,7 @@ func (vm *VM) initNullClass() *RClass {
 	nc.setBuiltInMethods(builtInNullInstanceMethods())
 	nc.class.setBuiltInMethods(builtInNullClassMethods())
 
-	NULL = &NullObject{baseObj: &baseObj{class: nc}}
+	NULL = &NullObject{baseObj: &baseObj{class: nc, pseudoClass: nc}}
 	return nc
 }
 

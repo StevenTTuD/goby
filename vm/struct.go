@@ -12,7 +12,8 @@ type StructObject struct {
 }
 
 func (vm *VM) initStructObject(d interface{}) *StructObject {
-	return &StructObject{data: d, baseObj: &baseObj{class: vm.topLevelClass(structClass)}}
+	c := vm.topLevelClass(structClass)
+	return &StructObject{data: d, baseObj: &baseObj{class: c, pseudoClass: c}}
 }
 
 func (vm *VM) initStructClass() *RClass {

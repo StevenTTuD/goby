@@ -24,8 +24,8 @@ func (vm *VM) initBoolClass() *RClass {
 	b.setBuiltInMethods(builtinBooleanInstanceMethods())
 	b.class.setBuiltInMethods(builtInBooleanClassMethods())
 
-	TRUE = &BooleanObject{Value: true, baseObj: &baseObj{class: b}}
-	FALSE = &BooleanObject{Value: false, baseObj: &baseObj{class: b}}
+	TRUE = &BooleanObject{Value: true, baseObj: &baseObj{class: b, pseudoClass: b}}
+	FALSE = &BooleanObject{Value: false, baseObj: &baseObj{class: b, pseudoClass: b}}
 
 	return b
 }

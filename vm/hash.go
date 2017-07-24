@@ -42,8 +42,9 @@ type HashObject struct {
 }
 
 func (vm *VM) initHashObject(pairs map[string]Object) *HashObject {
+	c := vm.topLevelClass(hashClass)
 	return &HashObject{
-		baseObj: &baseObj{class: vm.topLevelClass(hashClass)},
+		baseObj: &baseObj{class: c, pseudoClass: c},
 		Pairs:   pairs,
 	}
 }
